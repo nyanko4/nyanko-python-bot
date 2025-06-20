@@ -15,11 +15,13 @@ def judge(dice):
     dice.sort()
     a, b, c = dice
     if a == b == c:
+        if a == 1:
+            return "ピンゾロ！"
         return "ゾロ目！"
     elif a == 1 and b == 2 and c == 3:
-        return "ヒフミ（負け）"
+        return "ヒフミ"
     elif a == 4 and b == 5 and c == 6:
-        return "シゴロ（勝ち）"
+        return "シゴロ"
     elif a == b:
         return f"出目: {c}"
     elif b == c:
