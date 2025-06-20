@@ -8,8 +8,6 @@ app = FastAPI()
 
 templates = Jinja2Templates(directory="templates")
 
-app.mount("/", StaticFiles(directory="./home", html=True), name="static")
-
 def roll_dice():
     return [random.randint(1, 6) for _ in range(3)]
 
