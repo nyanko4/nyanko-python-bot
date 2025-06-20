@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<title>poker</title>
+<style>
+  body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
+  .cards { margin: 20px; font-size: 2em; }
+  button { font-size: 1.2em; padding: 10px 20px; }
+</style>
+</head>
+<body>
+  <h1>poker</h1>
+  <div>
+    {% for m in poker_mark %}
+    {% for c in poker_number %}
+      <span>{{ m }}{{ c }}</span>
+  </div>
+  <form method="get" action="/poker">
+  <button type="submit">カードを引く</button>
+  </form>
+</body>
