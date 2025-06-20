@@ -41,12 +41,19 @@ async def chinchiro(request: Request):
         "result": result_dice
     })
 
+marks = ['♠', '♥', '♦', '♣']
+numbers = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K']
+cords = [s + r for s in marks for r in numbers]
+
+def draw_poker():
+    random.shuffle(cords)
+    poker = cords[:5]
+    return poker
+
 @app.get("/poker", response_class=HTMLResponse)
 async def poker(request: Request):
     poker = draw_poker()
-    result_poker = judge_poker
     return templates.TemplateResponse("poker.html", {
         "request": request,
         "poker": poker,
-        "result": result_poker
     })
