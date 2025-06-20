@@ -12,9 +12,9 @@
 <body>
   <h1>poker</h1>
   <div>
-    {% for m in poker_mark %}
-    {% for c in poker_number %}
-      <span>{{ m }}{{ c }}</span>
+    {% for p in poker %}
+      <span>{{ p }}</span>
+    {% endfor %}
   </div>
   <form method="get" action="/poker">
   <button type="submit">カードを引く</button>
