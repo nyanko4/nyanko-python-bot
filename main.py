@@ -11,7 +11,7 @@ templates = Jinja2Templates(directory="templates")
 def roll_dice():
     return [random.randint(1, 6) for _ in range(3)]
 
-def judge(dice):
+def judge_dice(dice):
     dice.sort()
     a, b, c = dice
     if a == b == c:
@@ -24,19 +24,29 @@ def judge(dice):
         return "シゴロ"
     elif a == b:
         return f"出目: {c}"
-    elif b == c:
+    elif b == c:    
         return f"出目: {a}"
     elif a == c:
         return f"出目: {b}"
     else:
         return "役なし"
 
-@app.get("/", response_class=HTMLResponse)
+@app.get("/chinchiro", response_class=HTMLResponse)
 async def chinchiro(request: Request):
     dice = roll_dice()
-    result = judge(dice)
-    return templates.TemplateResponse("index.html", {
+    result_dice = judge_dice(dice)
+    return templates.TemplateResponse("dice.html", {
         "request": request,
         "dice": dice,
-        "result": result
+        "result": result_dice
+    })
+
+@app.get("/poker", response_class=HTMLResponse)
+async def poker(request: Request):
+    poker = draw_poker()
+    result_poker = judge_poker
+    return templates.TemplateResponse("poker.html", {
+        "request": request,
+        "poker": poker,
+        "result": result_poker
     })
