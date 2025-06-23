@@ -17,8 +17,8 @@ async def getchat(request: Request):
     modules = [omikuji]
 
     for module in modules:
-        result = await modules(body, accountId, roomId, messageId)
-        result = "ok"
-        return { "ok": True }
+        result = await module(body, accountId, roomId, messageId)
+        if result == "ok":
+            return { "ok": True }
 
 return { "ok": True }
