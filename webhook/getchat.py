@@ -20,5 +20,4 @@ async def getchat(request: Request):
         result = await module(body, accountId, roomId, messageId)
         if result == "ok":
             return { "ok": True }
-
-return { "ok": True }
+        return { "ok": True }
