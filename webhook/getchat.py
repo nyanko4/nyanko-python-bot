@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Request
-from modules.omikuji import router as omikuji
+from modules.omikuji import omikuji
 
 router = APIRouter()
 
