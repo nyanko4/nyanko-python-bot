@@ -16,4 +16,3 @@ async def webhook(request: Request):
     message_id = data.get("message_id")
     send_time = data.get("send_time")
     update_time = data.get("update_time")
-    print(body)
