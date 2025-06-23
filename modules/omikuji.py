@@ -1,8 +1,7 @@
 from fastapi import APIRouter
 import random
 import re
-
-router = APIRouter()
+from ctr.message import sendchatwork
 
 def omikujiresult():
     probability = random.randint(1, 1000)
@@ -26,6 +25,6 @@ def omikujiresult():
 async def omikuji(body, accountId, roomId, messageId):
     if re.fullmatch("おみくじ", body.strip()):
         result = omikujiresult()
-        print(result)
+        sendchatwork(result, roomId)
         return result
     return None
