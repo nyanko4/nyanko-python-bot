@@ -25,6 +25,6 @@ def omikujiresult():
 async def omikuji(body, accountId, roomId, messageId):
     if re.fullmatch("おみくじ", body.strip()):
         result = omikujiresult()
-        sendchatwork(result, roomId)
+        sendchatwork(f"[rp aid={accountId} to={roomId}-{messageId}][piconname:{accoutId}] さん\n{result}", roomId)
         return result
     return None
