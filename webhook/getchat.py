@@ -13,7 +13,7 @@ async def getchat(request: Request):
     messageId = data.get("message_id")
     send_time = data.get("send_time")
     update_time = data.get("update_time")
-
+    print(body)
     modules = [omikuji]
 
     for module in modules:
