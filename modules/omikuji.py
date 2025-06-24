@@ -39,7 +39,7 @@ async def omikuji(body, accountId, roomId, messageId):
                 )
                 return {"status": "already_drawn"}
 
-            result = await omikujiresult()
+            result = omikujiresult()
             await db.execute(
                 "INSERT INTO omikuji (accoutId, result, roomId, name, date) VALUES (?, ?, ?, ?, ?)",
                 (accoutId, result, roomId, sendername, date),
