@@ -26,8 +26,25 @@ def omikujiresult():
 async def omikuji(body, accountId, roomId, messageId):
     if re.fullmatch("おみくじ", body.strip()):
         async with aiosqlite.connect("omikuji.db") as db:
-            
-        result = omikujiresult()
-        sendchatwork(f"[rp aid={accountId} to={roomId}-{messageId}][pname:{accountId}] さん\n{result}", roomId)
-        return result
-    return None
+            db.row_factory = aiosqlite.Row
+            async with db.execute(
+                "SELECT * FROM omikuji WHERE accountId = ?", (account_id,)
+            ) as cursor:
+                existing = await cursor.fetchone()
+
+            if existing:
+                await send_chatwork(
+                    f"[rp aid={account_id} to={room_id}-{message_id}] おみくじは1日1回までです。",
+                    room_id,
+                )
+                return {"status": "already_drawn"}
+
+            result = await omikujiresult()
+            await db.execute(
+                "INSERT INTO omikuji (accoutId, result, roomId, name, date) VALUES (?, ?, ?, ?, ?)",
+                (accoutId, result, roomId, sendername, date),
+            )
+            await db.commit()
+            sendchatwork(f"[rp aid={accountId} to={roomId}-{messageId}][pname:{accountId}] さん\n{result}", roomId)
+            return {"status": "ok", "result": omikuji_result}
+    return {"status": "ignored"}
