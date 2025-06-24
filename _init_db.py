@@ -5,7 +5,7 @@ async def init_db():
     async with aiosqlite.connect("omikuji.db") as db:
         await db.execute("""
             CREATE TABLE IF NOT EXISTS omikuji (
-                accoutId INTEGER,
+                accountId INTEGER,
                 result TEXT,
                 roomId INTEGER,
                 name TEXT,
