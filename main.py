@@ -10,6 +10,6 @@ def send():
     
 @app.on_event("startup")
 async def startup():
-    await init_db()
+    await _init_db()
     
 app.include_router(getchat)
