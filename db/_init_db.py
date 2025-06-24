@@ -8,9 +8,8 @@ async def _init_db():
                 accountId INTEGER,
                 result TEXT,
                 roomId INTEGER,
-                name TEXT,
-                date NUMERIC
-            )
+                name TEXT
+                )
         """)
         await db.commit()
         print("おみくじテーブル作成完了")
