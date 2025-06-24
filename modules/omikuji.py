@@ -28,7 +28,7 @@ async def omikuji(body, accountId, roomId, messageId):
         async with aiosqlite.connect("omikuji.db") as db:
             db.row_factory = aiosqlite.Row
             async with db.execute(
-                "SELECT * FROM omikuji WHERE accountId = ?", (accountId,),
+                "SELECT * FROM omikuji WHERE accountId = ?", (accountId,)
             ) as cursor:
                 existing = await cursor.fetchone()
 
