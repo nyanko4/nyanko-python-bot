@@ -42,7 +42,7 @@ async def omikuji(body, accountId, roomId, messageId):
             result = omikujiresult()
             await db.execute(
                 "INSERT INTO omikuji (accoutId, result, roomId, name, date) VALUES (?, ?, ?, ?, ?)",
-                (accoutId, result, roomId, sendername, date),
+                (accountId, result, roomId, sendername, date),
             )
             await db.commit()
             sendchatwork(f"[rp aid={accountId} to={roomId}-{messageId}][pname:{accountId}] さん\n{result}", roomId)
