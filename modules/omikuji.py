@@ -3,6 +3,7 @@ import aiosqlite
 import random
 import re
 from ctr.message import sendchatwork
+from ctr.cwdata import sendername
 
 def omikujiresult():
     probability = random.randint(1, 1000)
