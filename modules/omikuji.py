@@ -1,4 +1,5 @@
 from fastapi import APIRouter
+import aiosqlite
 import random
 import re
 from ctr.message import sendchatwork
@@ -24,6 +25,8 @@ def omikujiresult():
 
 async def omikuji(body, accountId, roomId, messageId):
     if re.fullmatch("おみくじ", body.strip()):
+        async with aiosqlite.connect("omikuji.db") as db:
+            
         result = omikujiresult()
         sendchatwork(f"[rp aid={accountId} to={roomId}-{messageId}][pname:{accountId}] さん\n{result}", roomId)
         return result
