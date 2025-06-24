@@ -13,7 +13,7 @@ async def init_db():
             )
         """)
         await db.commit()
-        print("✅ おみくじテーブル作成完了")
+        print("おみくじテーブル作成完了")
 
 if __name__ == "__main__":
     asyncio.run(init_db())
