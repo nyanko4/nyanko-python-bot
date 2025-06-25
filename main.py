@@ -8,6 +8,7 @@ from threading import Thread
 from webhook.getchat import router as getchat
 from db._init_db import _init_db
 from ctr.message import sendchatwork
+from quiz.send = router as quiz
 
 app = FastAPI()
 
@@ -41,3 +42,5 @@ def start_scheduler():
     Thread(target=scheduler_loop, daemon=True).start()
     
 app.include_router(getchat)
+
+app.include_router(quiz)
