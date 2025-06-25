@@ -8,7 +8,7 @@ from threading import Thread
 from webhook.getchat import router as getchat
 from db._init_db import _init_db
 from ctr.message import sendchatwork
-from quiz.send = router as quiz
+from quiz.send import router as quiz
 
 app = FastAPI()
 
