@@ -49,22 +49,22 @@ class Chatwork:
         name = await self.sendername()
         async with aiosqlite.connect("omikuji.db") as db:
             db.row_factory = aiosqlite.Row
-                async with db.execute(
-                    "SELECT * FROM omikuji WHERE accountId = ?", (self.accountId,)
-                ) as cursor:
-                    existing = await cursor.fetchone()
-                    if existing:
-                        await sendmessage(f"[rp aid={self.accountId} to={self.room_id}-{self.message_id}] おみくじは1日1回までです。")
-                        return {"status": "already_drawn"}
-                    result = self.omikujiresult()
-                    await db.execute(
-                        "INSERT INTO omikuji (accountId, result, roomId, name) VALUES (?, ?, ?, ?)",
-                        (self.accountId, result, self.roomId, self.name),
-                    )
-                    await db.commit()
-                    await self.sendmessage(f"[rp aid={self.accountId} to={self.roomId}-{self.messageId}][pname:{self.accountId}] さん\n{result}")
-                    return {"status": "ok", "result": result}
-            
+            async with db.execute(
+                "SELECT * FROM omikuji WHERE accountId = ?", (self.accountId,)
+            ) as cursor:
+                existing = await cursor.fetchone()
+                if existing:
+                    await sendmessage(f"[rp aid={self.accountId} to={self.room_id}-{self.message_id}] おみくじは1日1回までです。")
+                    return {"status": "already_drawn"}
+                result = self.omikujiresult()
+                await db.execute(
+                    "INSERT INTO omikuji (accountId, result, roomId, name) VALUES (?, ?, ?, ?)",
+                    (self.accountId, result, self.roomId, self.name),
+                )
+                await db.commit()
+                await self.sendmessage(f"[rp aid={self.accountId} to={self.roomId}-{self.messageId}][pname:{self.accountId}] さん\n{result}")
+                return {"status": "ok", "result": result}
+                
     def sendmessage(self, ms):
         try:
             response = requests.post(f'{self.api_url}/rooms/{self.roomId}/messages', data={"body": ms}, headers=self.headers)
