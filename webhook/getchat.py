@@ -7,11 +7,11 @@ import random
 CHATWORK_TOKEN = os.getenv("CHATWORK_API_TOKEN")
 
 class Chatwork:
-    def _init_(self, api_key):
+    def __init__(self, api_key):
         self.api_url = 'https://api.chatwork.com/v2'
         self.headers = { 'X-ChatworkToken': api_key }
 
-        async def parse_request(self):
+        async def parse_request(self, request):
             self.req = await request.json()
             self.data = self.req["webhook_event"]
             self.body = self.data.get("body")
@@ -57,8 +57,7 @@ class Chatwork:
                     if existing:
                         await sendmessage(f"[rp aid={self.accountId} to={self.room_id}-{self.message_id}] おみくじは1日1回までです。")
                         return {"status": "already_drawn"}
-
-                    result = omikujiresult()
+                    result = self.omikujiresult()
                     await db.execute(
                         "INSERT INTO omikuji (accountId, result, roomId, name) VALUES (?, ?, ?, ?)",
                         (self.accountId, result, self.roomId, self.name),
@@ -77,10 +76,10 @@ class Chatwork:
                 print(f"エラー: {e}")
         def sendername(self):
             try:
-                response = requests.post(f"{self.api_url}/rooms/{self.roomId}/members", headers=self.headers)
+                response = requests.get(f"{self.api_url}/rooms/{self.roomId}/members", headers=self.headers)
                 if response.status_code == 200:
                     print("名前を取得")
-                    members = response.data
+                    members = response.json()
                     sender = next((m for m in members if m["account_id"] == self.accountId), None)
                     name = sender["name"] if sender else "名前を取得できませんでした"
                     return name
@@ -94,4 +93,4 @@ router = APIRouter()
 async def getchat(request: Request):
     chatwork = Chatwork(CHATWORK_TOKEN)
     await chatwork.parse_request(request)
-    await command()
+    await chatwork.command()
