@@ -56,7 +56,7 @@ class Chatwork:
             ) as cursor:
                 existing = await cursor.fetchone()
                 if existing:
-                    await sendmessage(f"[rp aid={self.accountId} to={self.room_id}-{self.message_id}] おみくじは1日1回までです。")
+                    await self.sendmessage(f"[rp aid={self.accountId} to={self.room_id}-{self.message_id}] おみくじは1日1回までです。")
                     return {"status": "already_drawn"}
                 result = await self.omikujiresult()
                 await db.execute(
