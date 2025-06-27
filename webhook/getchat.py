@@ -28,7 +28,7 @@ class Chatwork:
         if self.body == 'おみくじ':
             await self.omikuji()
 
-    def omikujiresult(self):
+    async def omikujiresult(self):
         probability = random.randint(1, 1000)
         if probability < 50:
             return "大凶"  # 5%
@@ -58,7 +58,7 @@ class Chatwork:
                 if existing:
                     await sendmessage(f"[rp aid={self.accountId} to={self.room_id}-{self.message_id}] おみくじは1日1回までです。")
                     return {"status": "already_drawn"}
-                result = self.omikujiresult()
+                result = await self.omikujiresult()
                 await db.execute(
                     "INSERT INTO omikuji (accountId, result, roomId, name) VALUES (?, ?, ?, ?)",
                     (self.accountId, result, self.roomId, self.name),
@@ -67,7 +67,7 @@ class Chatwork:
                 await self.sendmessage(f"[rp aid={self.accountId} to={self.roomId}-{self.messageId}][pname:{self.accountId}] さん\n{result}")
                 return {"status": "ok", "result": result}
                 
-    def sendmessage(self, ms):
+    async def sendmessage(self, ms):
         try:
             response = requests.post(f'{self.api_url}/rooms/{self.roomId}/messages', data={"body": ms}, headers=self.headers)
             if response.status_code == 200:
@@ -75,7 +75,7 @@ class Chatwork:
             response.raise_for_status()
         except requests.exceptions.RequestException as e:
             print(f"エラー: {e}")
-    def sendername(self):
+    async def sendername(self):
         try:
             response = requests.get(f"{self.api_url}/rooms/{self.roomId}/members", headers=self.headers)
             if response.status_code == 200:
