@@ -47,7 +47,7 @@ class Chatwork:
                 return "大吉"  # 12.6%
                     
         async def omikuji(self):
-                name = self.sendername()
+                name = await self.sendername()
                 async with aiosqlite.connect("omikuji.db") as db:
                     db.row_factory = aiosqlite.Row
                     async with db.execute(
@@ -56,18 +56,18 @@ class Chatwork:
                         existing = await cursor.fetchone()
 
                     if existing:
-                        await sendmessage(f"[rp aid={self.account_id} to={self.room_id}-{self.message_id}] おみくじは1日1回までです。")
+                        await sendmessage(f"[rp aid={self.accountId} to={self.room_id}-{self.message_id}] おみくじは1日1回までです。")
                         return {"status": "already_drawn"}
 
                     result = omikujiresult()
                     await db.execute(
-                        "INSERT INTO omikuji (accoutId, result, roomId, name) VALUES (?, ?, ?, ?)",
+                        "INSERT INTO omikuji (accountId, result, roomId, name) VALUES (?, ?, ?, ?)",
                         (self.accountId, result, self.roomId, self.name),
                     )
                     await db.commit()
-                    self.sendmessage(f"[rp aid={self.accountId} to={self.roomId}-{self.messageId}][pname:{self.accountId}] さん\n{result}", roomId)
-                    return {"status": "ok", "result": omikuji_result}
-            return {"status": "ignored"}
+                    await self.sendmessage(f"[rp aid={self.accountId} to={self.roomId}-{self.messageId}][pname:{self.accountId}] さん\n{result}")
+                    return {"status": "ok", "result": result}
+            
         def sendmessage(self, ms):
             try:
                 response = requests.post(f'{self.api_url}/rooms/{self.roomId}/messages', data={"body": ms}, headers=self.headers)
