@@ -1,5 +1,4 @@
 from fastapi import APIRouter, Request
-from modules.omikuji import omikuji
 import requests
 import os
 import aiosqlite
