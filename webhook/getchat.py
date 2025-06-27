@@ -1,23 +1,116 @@
 from fastapi import APIRouter, Request
 from modules.omikuji import omikuji
+import requests
+import os
+import aiosqlite
+import random
+
+CHATWORK_TOKEN = os.getenv("CHATWORK_API_TOKEN")
+
+class Chatwork:
+    def _init_(self, request, api_key):
+        self.req = await request.json()
+        self.data = self.req["webhook_event"]
+        self.body = self.data.get("body")
+        self.accountId = self.data.get("account_id")
+        self.roomId = self.data.get("room_id")
+        self.messageId = self.data.get("message_id")
+        self.send_time = self.data.get("send_time")
+        self.update_time = self.data.get("update_time")
+        print(body)
+        self.api_url = 'https://api.chatwork.com/v2'
+        self.headers = { 'X-ChatworkToken': api_key }
+
+        def command(self):
+            if self.body == 'おみくじ':
+                self.omikuji()
+
+        def omikujiresult():
+            probability = random.randint(1, 1000)
+            if probability < 50:
+                return "大凶"  # 5%
+            elif probability < 250:
+                return "小吉"  # 20%
+            elif probability < 423:
+                return "末吉"  # 17.3%
+            elif probability < 623:
+                return "吉"    # 20%
+            elif probability < 773:
+                return "中吉"  # 15%
+            elif probability < 873:
+                return "凶"    # 10%
+            elif probability < 874:
+                return "願い事叶えたるよ(できることだけ)"  # 0.1%
+            else:
+                return "大吉"  # 12.6%
+                    
+        async def omikuji(self):
+                name = self.sendername()
+                async with aiosqlite.connect("omikuji.db") as db:
+                    db.row_factory = aiosqlite.Row
+                    async with db.execute(
+                        "SELECT * FROM omikuji WHERE accountId = ?", (accountId,)
+                    ) as cursor:
+                        existing = await cursor.fetchone()
+
+                    if existing:
+                        await sendmessage(f"[rp aid={self.account_id} to={self.room_id}-{self.message_id}] おみくじは1日1回までです。")
+                        return {"status": "already_drawn"}
+
+                    result = omikujiresult()
+                    await db.execute(
+                        "INSERT INTO omikuji (accoutId, result, roomId, name) VALUES (?, ?, ?, ?)",
+                        (accountId, result, roomId, sendername),
+                    )
+                    await db.commit()
+                    self.sendmessage(f"[rp aid={self.accountId} to={self.roomId}-{self.messageId}][pname:{self.accountId}] さん\n{result}", roomId)
+                    return {"status": "ok", "result": omikuji_result}
+            return {"status": "ignored"}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+        def sendmessage(self, ms):
+            try:
+                response = requests.post(f'{self.api_url}/rooms/{self.roomId}/messages', data={"body": ms}, headers=self.headers)
+                if response.status_code == 200:
+                    print("メッセージを送信しました")
+                else:
+                    print(f"Chatwork送信失敗: {response.status_code} - {response.text}")
+                except requests.exceptions.RequestException as e:
+                    print(f"ネットワークまたはリクエストエラー: {e}")
+                except Exception as e:
+                    print(f"予期しないエラー: {e}")
+        def sendername(self):
+            try:
+                response = requests.post(f"{self.api_url}/rooms/{self.roomId}/members", headers=self.headers)
+                if response.status_code == 200:
+                print("名前を取得")
+                members = response.data
+                sender = next((m for m in members if m["account_id"] == self.accountId), None)
+                name = sender["name"] if sender else "名前を取得できませんでした"
+                return name
+            else:
+                print(f"Chatworkメンバー取得失敗: {response.status_code} - {response.text}")
+            except requests.exceptions.RequestException as e:
+                print(f"ネットワークまたはリクエストエラー: {e}")
+            except Exception as e:
+                print(f"予期しないエラー: {e}")
 
 router = APIRouter()
 
 @router.post("/getchat")
 async def getchat(request: Request):
-    req_body = await request.json()
-    data = req_body["webhook_event"]
-    body = data.get("body")
-    accountId = data.get("account_id")
-    roomId = data.get("room_id")
-    messageId = data.get("message_id")
-    send_time = data.get("send_time")
-    update_time = data.get("update_time")
-    print(body)
-    modules = [omikuji]
-
-    for module in modules:
-        result = await module(body, accountId, roomId, messageId)
-        if result == "ok":
-            return { "ok": True }
-        return { "ok": True }
+    chatwork = Chatwork(request, CHATWORK_TOKEN)
