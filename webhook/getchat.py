@@ -92,4 +92,4 @@ router = APIRouter()
 async def getchat(request: Request):
     chatwork = Chatwork(CHATWORK_TOKEN)
     await chatwork.parse_request(request)
-    await chatwork.command()
+    chatwork.command()
