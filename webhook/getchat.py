@@ -22,9 +22,9 @@ class Chatwork:
         self.update_time = self.data.get("update_time")
         print(self.body)
             
-    def command(self):
+    async def command(self):
         if self.body == 'おみくじ':
-            self.omikuji()
+            await self.omikuji()
 
     def omikujiresult(self):
         probability = random.randint(1, 1000)
