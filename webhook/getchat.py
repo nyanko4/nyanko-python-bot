@@ -80,17 +80,14 @@ class Chatwork:
             try:
                 response = requests.post(f"{self.api_url}/rooms/{self.roomId}/members", headers=self.headers)
                 if response.status_code == 200:
-                print("名前を取得")
-                members = response.data
-                sender = next((m for m in members if m["account_id"] == self.accountId), None)
-                name = sender["name"] if sender else "名前を取得できませんでした"
-                return name
-            else:
-                print(f"Chatworkメンバー取得失敗: {response.status_code} - {response.text}")
+                    print("名前を取得")
+                    members = response.data
+                    sender = next((m for m in members if m["account_id"] == self.accountId), None)
+                    name = sender["name"] if sender else "名前を取得できませんでした"
+                    return name
+                response.raise_for_status()
             except requests.exceptions.RequestException as e:
-                print(f"ネットワークまたはリクエストエラー: {e}")
-            except Exception as e:
-                print(f"予期しないエラー: {e}")
+                print(f"エラー: {e}")
 
 router = APIRouter()
 
