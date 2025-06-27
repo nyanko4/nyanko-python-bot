@@ -8,24 +8,26 @@ import random
 CHATWORK_TOKEN = os.getenv("CHATWORK_API_TOKEN")
 
 class Chatwork:
-    def _init_(self, request, api_key):
-        self.req = await request.json()
-        self.data = self.req["webhook_event"]
-        self.body = self.data.get("body")
-        self.accountId = self.data.get("account_id")
-        self.roomId = self.data.get("room_id")
-        self.messageId = self.data.get("message_id")
-        self.send_time = self.data.get("send_time")
-        self.update_time = self.data.get("update_time")
-        print(body)
+    def _init_(self, api_key):
         self.api_url = 'https://api.chatwork.com/v2'
         self.headers = { 'X-ChatworkToken': api_key }
 
+        async def parse_request(self):
+            self.req = await request.json()
+            self.data = self.req["webhook_event"]
+            self.body = self.data.get("body")
+            self.accountId = self.data.get("account_id")
+            self.roomId = self.data.get("room_id")
+            self.messageId = self.data.get("message_id")
+            self.send_time = self.data.get("send_time")
+            self.update_time = self.data.get("update_time")
+            print(self.body)
+            
         def command(self):
             if self.body == 'おみくじ':
                 self.omikuji()
 
-        def omikujiresult():
+        def omikujiresult(self):
             probability = random.randint(1, 1000)
             if probability < 50:
                 return "大凶"  # 5%
@@ -49,7 +51,7 @@ class Chatwork:
                 async with aiosqlite.connect("omikuji.db") as db:
                     db.row_factory = aiosqlite.Row
                     async with db.execute(
-                        "SELECT * FROM omikuji WHERE accountId = ?", (accountId,)
+                        "SELECT * FROM omikuji WHERE accountId = ?", (self.accountId,)
                     ) as cursor:
                         existing = await cursor.fetchone()
 
@@ -60,39 +62,20 @@ class Chatwork:
                     result = omikujiresult()
                     await db.execute(
                         "INSERT INTO omikuji (accoutId, result, roomId, name) VALUES (?, ?, ?, ?)",
-                        (accountId, result, roomId, sendername),
+                        (self.accountId, result, self.roomId, self.name),
                     )
                     await db.commit()
                     self.sendmessage(f"[rp aid={self.accountId} to={self.roomId}-{self.messageId}][pname:{self.accountId}] さん\n{result}", roomId)
                     return {"status": "ok", "result": omikuji_result}
             return {"status": "ignored"}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
         def sendmessage(self, ms):
             try:
                 response = requests.post(f'{self.api_url}/rooms/{self.roomId}/messages', data={"body": ms}, headers=self.headers)
                 if response.status_code == 200:
                     print("メッセージを送信しました")
-                else:
-                    print(f"Chatwork送信失敗: {response.status_code} - {response.text}")
-                except requests.exceptions.RequestException as e:
-                    print(f"ネットワークまたはリクエストエラー: {e}")
-                except Exception as e:
-                    print(f"予期しないエラー: {e}")
+                response.raise_for_status()
+            except requests.exceptions.RequestException as e:
+                print(f"エラー: {e}")
         def sendername(self):
             try:
                 response = requests.post(f"{self.api_url}/rooms/{self.roomId}/members", headers=self.headers)
@@ -113,4 +96,6 @@ router = APIRouter()
 
 @router.post("/getchat")
 async def getchat(request: Request):
-    chatwork = Chatwork(request, CHATWORK_TOKEN)
+    chatwork = Chatwork(CHATWORK_TOKEN)
+    await chatwork.parse_request(request)
+    await command()
