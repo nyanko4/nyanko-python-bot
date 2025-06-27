@@ -61,7 +61,7 @@ class Chatwork:
                 result = await self.omikujiresult()
                 await db.execute(
                     "INSERT INTO omikuji (accountId, result, roomId, name) VALUES (?, ?, ?, ?)",
-                    (self.accountId, result, self.roomId, self.name),
+                    (self.accountId, result, self.roomId, name),
                 )
                 await db.commit()
                 await self.sendmessage(f"[rp aid={self.accountId} to={self.roomId}-{self.messageId}][pname:{self.accountId}] さん\n{result}")
