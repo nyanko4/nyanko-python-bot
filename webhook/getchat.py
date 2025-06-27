@@ -3,6 +3,8 @@ import requests
 import os
 import aiosqlite
 import random
+import tracemalloc
+tracemalloc.start()
 
 CHATWORK_TOKEN = os.getenv("CHATWORK_API_TOKEN")
 
@@ -92,4 +94,4 @@ router = APIRouter()
 async def getchat(request: Request):
     chatwork = Chatwork(CHATWORK_TOKEN)
     await chatwork.parse_request(request)
-    chatwork.command()
+    await chatwork.command()
