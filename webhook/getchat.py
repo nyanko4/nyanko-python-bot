@@ -26,10 +26,14 @@ class Chatwork:
         print(self.body)
             
     async def command(self):
-        if self.body == "おみくじ":
-            await self.omikuji()
-        elif self.body == "":
-            pass
+        commands = {
+            "おみくじ": self.omikuji()
+        }
+        handler = commands.get(self.body)
+        if handler:
+            await handler()
+        else:
+            print(f"commandに登録されていません {self.body}")
             
     async def getOmikujiResult(self):
         probability = random.randint(1, 1000)
@@ -74,7 +78,7 @@ class Chatwork:
                 print("名前を取得")
                 members = response.json()
                 sender = next((m for m in members if m["account_id"] == self.accountId), None)
-                name = sender["name"] if sender else "名前を取得できませんでした"
+                name = sender["name"] if sender else f"[pname:{self.accountId}]"
                 return name
         except httpx.HTTPStatusError as e:
             print(f"HTTPエラー: {e.response.status_code} - {e.response.text}")
