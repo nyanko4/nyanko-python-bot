@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Request
-import requests
+import httpx
 import os
-import aiosqlite
 import random
 import tracemalloc
 tracemalloc.start()
@@ -10,6 +9,8 @@ CHATWORK_TOKEN = os.getenv("CHATWORK_API_TOKEN")
 
 class Chatwork:
     def __init__(self, api_key):
+        if not api_key:
+            raise ValueError("CHATWORK_API_TOKENが設定されていません")
         self.api_url = 'https://api.chatwork.com/v2'
         self.headers = { 'X-ChatworkToken': api_key }
 
@@ -25,10 +26,12 @@ class Chatwork:
         print(self.body)
             
     async def command(self):
-        if self.body == 'おみくじ':
+        if self.body == "おみくじ":
             await self.omikuji()
-
-    async def omikujiresult(self):
+        elif self.body == "":
+            pass
+            
+    async def getOmikujiResult(self):
         probability = random.randint(1, 1000)
         if probability < 50:
             return "大凶"  # 5%
@@ -48,28 +51,35 @@ class Chatwork:
             return "大吉"  # 12.6%
                     
     async def omikuji(self):
-        name = await self.sendername()
+        name = await self.senderName()
+        omikujResult = await self.getOmikujiResult()
+        await self.sendMessage(f"[rp aid={self.accountId} to={self.roomId}-{self.accountId}]{name}さん\n{omikujiResult}")
                 
-    async def sendmessage(self, ms):
+    async def sendMessage(self, ms):
         try:
-            response = requests.post(f'{self.api_url}/rooms/{self.roomId}/messages', data={"body": ms}, headers=self.headers)
-            if response.status_code == 200:
+            async with httpx.AsyncClient() as client:
+                response = await client.post(f'{self.api_url}/rooms/{self.roomId}/messages', data={"body": ms}, headers=self.headers)
+                response.raise_for_status()
                 print("メッセージを送信しました")
-            response.raise_for_status()
-        except requests.exceptions.RequestException as e:
-            print(f"エラー: {e}")
-    async def sendername(self):
+        except httpx.HTTPStatusError as e:
+            print(f"HTTPエラー: {e.response.status_code} - {e.response.text}")
+        except httpx.RequestError as e:
+            print(f"通信エラー: {e}")
+            
+    async def senderName(self):
         try:
-            response = requests.get(f"{self.api_url}/rooms/{self.roomId}/members", headers=self.headers)
-            if response.status_code == 200:
+            async with httpx.AsyncClient() as client:
+                response = await client.get(f"{self.api_url}/rooms/{self.roomId}/members", headers=self.headers)
+                response.raise_for_status()
                 print("名前を取得")
                 members = response.json()
                 sender = next((m for m in members if m["account_id"] == self.accountId), None)
                 name = sender["name"] if sender else "名前を取得できませんでした"
                 return name
-                response.raise_for_status()
-        except requests.exceptions.RequestException as e:
-            print(f"エラー: {e}")
+        except httpx.HTTPStatusError as e:
+            print(f"HTTPエラー: {e.response.status_code} - {e.response.text}")
+        except httpx.RequestError as e:
+            print(f"通信エラー: {e}")
             
 router = APIRouter()
 
