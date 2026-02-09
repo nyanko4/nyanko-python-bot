@@ -26,16 +26,13 @@ class Chatwork:
         self.api_url = 'https://api.chatwork.com/v2'
         self.headers = { 'X-ChatworkToken': api_key }
 
-    async def parse_request(self, request):
-        self.req = await request.json()
-        self.data = self.req["webhook_event"]
-        self.body = self.data.get("body")
-        self.accountId = self.data.get("account_id")
-        self.roomId = self.data.get("room_id")
-        self.messageId = self.data.get("message_id")
-        self.send_time = self.data.get("send_time")
-        self.update_time = self.data.get("update_time")
-        print(self.body)
+    async def parse_request(self, payload):
+        event = payload.webhook_event
+        self.body = event.body
+        self.room_id = event.room_id
+        self.message_id = event.message_id
+        self.send_time = event.send_time
+        self.update_time = event.update_time
             
     async def command(self):
         commands = {
@@ -100,7 +97,7 @@ class Chatwork:
 router = APIRouter()
 
 @router.post("/getchat")
-async def getchat(request: Request):
+async def getchat(payload: ChatworkWebhook):
     chatwork = Chatwork(CHATWORK_TOKEN)
-    await chatwork.parse_request(request)
+    await chatwork.parse_request(payload)
     await chatwork.command()
