@@ -3,9 +3,21 @@ import httpx
 import os
 import random
 import tracemalloc
+from pydantic import BaseModel
 tracemalloc.start()
 
 CHATWORK_TOKEN = os.getenv("CHATWORK_API_TOKEN")
+
+class WebhookEvent(BaseModel):
+    body: str
+    account_id: int
+    room_id: int
+    message_id: int
+    send_time: int
+    update_time: int
+
+class ChatworkWebhook(BaseModel):
+    webhook_event: WebhookEvent
 
 class Chatwork:
     def __init__(self, api_key):
@@ -27,7 +39,7 @@ class Chatwork:
             
     async def command(self):
         commands = {
-            "おみくじ": self.omikuji()
+            "おみくじ": self.omikuji
         }
         handler = commands.get(self.body)
         if handler:
