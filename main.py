@@ -1,5 +1,5 @@
 from fastapi import FastAPI, Request
-from webhook.getchat import router as getchat
+from webhook import getchat, mention
 
 app = FastAPI()
     
@@ -7,4 +7,5 @@ app = FastAPI()
 def send():
     return {"status": "ok"}
    
-app.include_router(getchat)
+app.include_router(getchat.router)
+app.include_router(mention.router)
